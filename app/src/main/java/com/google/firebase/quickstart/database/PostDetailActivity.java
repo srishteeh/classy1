@@ -1,5 +1,7 @@
 package com.google.firebase.quickstart.database;
 
+import java.io.File;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,7 +39,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
     private ValueEventListener mPostListener;
     private String mPostKey;
     private CommentAdapter mAdapter;
-    private String filenew;
+    private String output_text;
 
     private TextView mAuthorView;
     private TextView mTitleView;
@@ -71,18 +73,83 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         mCommentField = findViewById(R.id.field_comment_text);
         mCommentButton = findViewById(R.id.button_post_comment);
         mCommentsRecycler = findViewById(R.id.recycler_comments);
+        output_text = "";
 
         mCommentButton.setOnClickListener(this);
         mCommentsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
+
     }
 
+
+    public void download_helper(String note){
+        output_text += "\n" + note;
+
+    }
     public void download(View view){
-        mCommentsReference = FirebaseDatabase.getInstance().getReference()
-                .child("post-comments").child(mPostKey);
 
 
-    }
+        //FirebaseDatabase.getInstance().getReference().child("post-comments")
+        //        .child(mPostKey).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        mCommentsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Comment comment = snapshot.getValue(Comment.class);
+                    download_helper(comment.text);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+        //Toast.makeText(this, output_text, Toast.LENGTH_SHORT).show();
+        write_to_file(output_text);
+        Log.i("ZOHEB: ", "output_text = " + output_text);
+       }
+
+    private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    public static String randomAlphaNumeric(int count) {
+        StringBuilder builder = new StringBuilder();
+        while (count-- != 0) {
+            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+            }
+            return builder.toString();
+        }
+
+    private void write_to_file(String data){
+        String filename = randomAlphaNumeric(8) + ".txt";
+        Log.i("ZOHEB:","write_to_file entered, filename = " + filename);
+
+        try{
+
+            File file = new File(this.getFilesDir(), filename);
+            java.io.FileWriter fileWriter = new java.io.FileWriter(file);
+
+            fileWriter.append(output_text);
+            fileWriter.flush();
+            fileWriter.close();
+
+
+
+            File dir = new File("//sdcard//Download//");
+
+            File dl_file = new File(dir , filename);
+
+            android.app.DownloadManager downloadManager = (android.app.DownloadManager) this.getSystemService(DOWNLOAD_SERVICE);
+            Log.i("ZOHEB:", "out_file, in_file = " + dl_file.getName() + ", " + file.getName());
+            Log.i("ZOHEB:" , "in_file = " + file.getAbsolutePath());
+            downloadManager.addCompletedDownload(dl_file.getName(), file.getName(), true, "text/plain", file.getAbsolutePath(),file.length(),true);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            }
+
+
+        }
 
 
 
