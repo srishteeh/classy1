@@ -94,8 +94,7 @@ public class NewPostActivity extends BaseActivity {
                             // Write new post
                             Calendar c = Calendar.getInstance();
                             c.add(Calendar.MINUTE, 2);
-
-                            writeNewPost(userId, user.username, title, body, c.toString());
+                            writeNewPost(userId, user.username, title, body, "" + c.getTimeInMillis());
                         }
 
                         // Finish this Activity, back to the stream

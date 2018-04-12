@@ -58,6 +58,8 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
     private Button mCommentButton;
     private RecyclerView mCommentsRecycler;
 
+    private Long deadInMillis;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -206,6 +208,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 mAuthorView.setText(post.author);
                 mTitleView.setText(post.title);
                 mBodyView.setText(post.body);
+                deadInMillis = Long.parseLong(post.datetime);
                 // [END_EXCLUDE]
             }
 
@@ -253,30 +256,37 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
     private void postComment() {
         final String uid = getUid();
-        FirebaseDatabase.getInstance().getReference().child("users").child(uid)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        // Get user information
-                        User user = dataSnapshot.getValue(User.class);
-                        String authorName = user.username;
+        Long now = Calendar.getInstance().getTimeInMillis();
 
-                        // Create new comment object
-                        String commentText = mCommentField.getText().toString();
-                        Comment comment = new Comment(uid, authorName, commentText);
+        if(now <= deadInMillis) {
+            FirebaseDatabase.getInstance().getReference().child("users").child(uid)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            // Get user information
+                            User user = dataSnapshot.getValue(User.class);
+                            String authorName = user.username;
 
-                        // Push the comment, it will appear in the list
-                        mCommentsReference.push().setValue(comment);
+                            // Create new comment object
+                            String commentText = mCommentField.getText().toString();
+                            Comment comment = new Comment(uid, authorName, commentText, "" + Calendar.getInstance().getTimeInMillis());
 
-                        // Clear the field
-                        mCommentField.setText(null);
-                    }
+                            // Push the comment, it will appear in the list
+                            mCommentsReference.push().setValue(comment);
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                            // Clear the field
+                            mCommentField.setText(null);
+                        }
 
-                    }
-                });
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        } else {
+            Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
+            mCommentField.setText(null);
+        }
     }
 
     private static class CommentViewHolder extends RecyclerView.ViewHolder {
