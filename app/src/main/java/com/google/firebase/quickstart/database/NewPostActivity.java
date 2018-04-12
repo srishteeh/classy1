@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.quickstart.database.models.Post;
 import com.google.firebase.quickstart.database.models.User;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,7 +92,10 @@ public class NewPostActivity extends BaseActivity {
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             // Write new post
-                            writeNewPost(userId, user.username, title, body);
+                            Calendar c = Calendar.getInstance();
+                            c.add(Calendar.MINUTE, 2);
+
+                            writeNewPost(userId, user.username, title, body, c.toString());
                         }
 
                         // Finish this Activity, back to the stream
@@ -122,11 +126,11 @@ public class NewPostActivity extends BaseActivity {
     }
 
     // [START write_fan_out]
-    private void writeNewPost(String userId, String username, String title, String body) {
+    private void writeNewPost(String userId, String username, String title, String body, String datetime) {
         // Create new post at /user-posts/$userid/$postid and at
         // /posts/$postid simultaneously
         String key = mDatabase.child("posts").push().getKey();
-        Post post = new Post(userId, username, title, body);
+        Post post = new Post(userId, username, title, body, datetime);
         Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
