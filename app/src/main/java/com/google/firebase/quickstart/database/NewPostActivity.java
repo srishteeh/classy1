@@ -31,7 +31,9 @@ public class NewPostActivity extends BaseActivity {
 
     private EditText mTitleField;
     private EditText mBodyField;
+    private EditText mSessionField;
     private FloatingActionButton mSubmitButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class NewPostActivity extends BaseActivity {
         mTitleField = findViewById(R.id.field_title);
         mBodyField = findViewById(R.id.field_body);
         mSubmitButton = findViewById(R.id.fab_submit_post);
+        mSessionField = findViewById(R.id.field_session);
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,7 +96,13 @@ public class NewPostActivity extends BaseActivity {
                         } else {
                             // Write new post
                             Calendar c = Calendar.getInstance();
-                            c.add(Calendar.MINUTE, 2);
+                            if(mSessionField.getText().toString() == "") {
+                                c.add(Calendar.MINUTE, 2);
+                                Toast.makeText(NewPostActivity.this, "Default session : 2 minutes", Toast.LENGTH_SHORT).show();
+                            } else {
+                                c.add(Calendar.MINUTE, Integer.parseInt(mSessionField.getText().toString()));
+                                Toast.makeText(NewPostActivity.this, "User defined session : " + Integer.parseInt(mSessionField.getText().toString()) + " minutes", Toast.LENGTH_SHORT).show();
+                            }
                             writeNewPost(userId, user.username, title, body, "" + c.getTimeInMillis());
                         }
 
