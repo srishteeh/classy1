@@ -175,7 +175,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
             fileWriter.write(output_text);
             fileWriter.close();
 
-            Toast.makeText(this, "new file created: " + filename + ", check in Downloads/Classy", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Saved to Downloads/" + dirname + "/" + filename, Toast.LENGTH_LONG).show();
         }
         catch (Exception e) {
             e.printStackTrace();
