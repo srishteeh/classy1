@@ -145,7 +145,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         String reportDate = df.format(today);
 
         // Print what date is today!
-        filename += "_" + reportDate;
+        filename += "_" + reportDate + ".txt";
         return filename;
     }
 
@@ -166,19 +166,22 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         String filename = genFileName();
         String dirname = "Classy";
         Log.i("ZOHEB:","write_to_file entered, filename = " + filename);
+        if(data != "") {
+            try {
+                File dir = getPublicDocumentStorageDir(dirname);
+                File file = new File(dir, filename);
+                FileWriter fileWriter = new FileWriter(file, false);
+                Log.i("ZOHEB:", "before writing, output_text = " + output_text + ", filename = " + filename);
+                fileWriter.write(data);
+                fileWriter.close();
 
-        try{
-            File dir = getPublicDocumentStorageDir(dirname);
-            File file = new File(dir, filename);
-            FileWriter fileWriter = new FileWriter(file,false);
-            Log.i("ZOHEB:", "before writing, output_text = " + output_text + ", filename = " + filename);
-            fileWriter.write(output_text);
-            fileWriter.close();
-
-            Toast.makeText(this, "Saved to Downloads/" + dirname + "/" + filename, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Saved to Downloads/" + dirname + "/" + filename, Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
+        else {
+            Toast.makeText(this, "Download failed, please try again", Toast.LENGTH_SHORT).show();
         }
 
     }
