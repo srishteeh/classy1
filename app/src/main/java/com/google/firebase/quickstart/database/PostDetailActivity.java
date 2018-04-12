@@ -1,6 +1,12 @@
 package com.google.firebase.quickstart.database;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+
 
 import android.content.Context;
 import android.os.Bundle;
@@ -28,6 +34,8 @@ import com.google.firebase.quickstart.database.models.Post;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class PostDetailActivity extends BaseActivity implements View.OnClickListener {
@@ -85,7 +93,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
 
     public void download_helper(String note){
-        output_text += "\n" + note;
+        output_text += note + "\n";
 
     }
     public void download(View view){
@@ -107,7 +115,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
             }
         });
 
-        Toast.makeText(this, output_text, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, output_text, Toast.LENGTH_SHORT).show();
         write_to_file(output_text);
         Log.i("ZOHEB: ", "output_text = " + output_text);
         output_text = "";
@@ -124,6 +132,22 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         return builder.toString();
     }
 
+    public static final String DATE_FORMAT_NOW = "yyyy-MM-dd_HH:mm:ss";
+    public String genFileName() {
+        String filename = mTitleView.getText().toString();
+        filename = filename.replaceAll("[^A-Za-z0-9]+", "").toUpperCase();
+        DateFormat df = new SimpleDateFormat(DATE_FORMAT_NOW);
+
+        // Get the date today using Calendar object.
+        Date today = Calendar.getInstance().getTime();
+        // Using DateFormat format method we can create a string
+        // representation of a date with the defined format.
+        String reportDate = df.format(today);
+
+        // Print what date is today!
+        filename += "_" + reportDate;
+        return filename;
+    }
 
 
     public File getPublicDocumentStorageDir(String albumName) {
@@ -138,7 +162,8 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
 
     private void write_to_file(String data){
-        String filename = randomAlphaNumeric(8) + ".txt";
+        //String filename = randomAlphaNumeric(8) + ".txt";
+        String filename = genFileName();
         String dirname = "Classy";
         Log.i("ZOHEB:","write_to_file entered, filename = " + filename);
 
@@ -150,7 +175,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
             fileWriter.write(output_text);
             fileWriter.close();
 
-            Toast.makeText(this, "new file created, " + filename, Toast.LENGTH_SHORT);
+            Toast.makeText(this, "new file created: " + filename + ", check in Downloads/Classy", Toast.LENGTH_SHORT).show();
         }
         catch (Exception e) {
             e.printStackTrace();
