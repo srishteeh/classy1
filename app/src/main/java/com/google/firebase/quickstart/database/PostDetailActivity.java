@@ -4,6 +4,7 @@ import java.io.File;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,6 +26,7 @@ import com.google.firebase.quickstart.database.models.User;
 import com.google.firebase.quickstart.database.models.Comment;
 import com.google.firebase.quickstart.database.models.Post;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,10 +107,11 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
             }
         });
 
-        //Toast.makeText(this, output_text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, output_text, Toast.LENGTH_SHORT).show();
         write_to_file(output_text);
         Log.i("ZOHEB: ", "output_text = " + output_text);
-       }
+        output_text = "";
+    }
 
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     public static String randomAlphaNumeric(int count) {
@@ -116,40 +119,44 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         while (count-- != 0) {
             int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
             builder.append(ALPHA_NUMERIC_STRING.charAt(character));
-            }
-            return builder.toString();
         }
+
+        return builder.toString();
+    }
+
+
+
+    public File getPublicDocumentStorageDir(String albumName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), albumName);
+        if (!file.mkdirs()) {
+            Log.e("ZOHEB:", "Directory not created");
+        }
+        return file;
+    }
+
 
     private void write_to_file(String data){
         String filename = randomAlphaNumeric(8) + ".txt";
+        String dirname = "Classy";
         Log.i("ZOHEB:","write_to_file entered, filename = " + filename);
 
         try{
-
-            File file = new File(this.getFilesDir(), filename);
-            java.io.FileWriter fileWriter = new java.io.FileWriter(file);
-
-            fileWriter.append(output_text);
-            fileWriter.flush();
+            File dir = getPublicDocumentStorageDir(dirname);
+            File file = new File(dir, filename);
+            FileWriter fileWriter = new FileWriter(file,false);
+            Log.i("ZOHEB:", "before writing, output_text = " + output_text + ", filename = " + filename);
+            fileWriter.write(output_text);
             fileWriter.close();
 
-
-
-            File dir = new File("//sdcard//Download//");
-
-            File dl_file = new File(dir , filename);
-
-            android.app.DownloadManager downloadManager = (android.app.DownloadManager) this.getSystemService(DOWNLOAD_SERVICE);
-            Log.i("ZOHEB:", "out_file, in_file = " + dl_file.getName() + ", " + file.getName());
-            Log.i("ZOHEB:" , "in_file = " + file.getAbsolutePath());
-            downloadManager.addCompletedDownload(dl_file.getName(), file.getName(), true, "text/plain", file.getAbsolutePath(),file.length(),true);
+            Toast.makeText(this, "new file created, " + filename, Toast.LENGTH_SHORT);
         }
         catch (Exception e) {
             e.printStackTrace();
-            }
-
-
         }
+
+    }
 
 
 
